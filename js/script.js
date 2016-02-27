@@ -8,6 +8,12 @@ $(document).ready(function(){
 			maxlength: 12
 	      },
 		  
+		 supplier_id: {
+	        required: true,
+			minlength: 10,
+			maxlength: 12
+	      },
+		  
 	       purchase_date: {
 	        required: true,
 	       required: true
@@ -45,6 +51,7 @@ $(document).ready(function(){
 		
 		messages: {
 			purchase_id: "Please enter any alphanumeric string between 10 to 12 characters.",
+			supplier_id: "Please enter any alphanumeric string between 10 to 12 characters.",
 			purchase_date: "Please select a date from datepicker."
 		},
 		
@@ -63,6 +70,12 @@ $(document).ready(function(){
 	    rules: {
 			
 		 sale_id: {
+	        required: true,
+			minlength: 10,
+			maxlength: 12
+	      },
+
+		 order_id: {
 	        required: true,
 			minlength: 10,
 			maxlength: 12
@@ -111,6 +124,7 @@ $(document).ready(function(){
 		
 		messages: {
 			sale_id: "Please enter any alphanumeric string between 10 to 12 characters.",
+			order_id: "Please enter any alphanumeric string between 10 to 12 characters.",
 			sale_date: "Please select a date from datepicker."
 		},
 		

@@ -34,10 +34,37 @@ var retVal = "";
 $(document).ready(function () {
     $('pre').addClass('prettyprint linenums');
 	
-	
+	$("#sku").keyup(function () {
+
+	});
 
     $("#sku").focusout(function () {
 
+		var sku = $(this).val();
+		if(sku.length>0){
+/*			$.get("validateSKU.php?sku="+sku, function(data, status){
+				alert(date);
+				if(date == no){
+					alert("This SKU does not exists in inventory table. Please try another sku.");
+					//return false;
+				}
+			});*/
+			var dataString = 'sku=' + sku;
+			$.ajax({
+				type: "POST",
+				url: "validateSKU.php",
+				data: dataString,
+				cache: false,
+				success: function(response) {    
+					if($.trim(response)=="yes"){}
+					else if($.trim(response)=="no") {
+						alert("This SKU does not exists in inventory table. Please try another sku."); 
+						$("#sku").focus();
+					}
+				}
+			});
+		}
+		
         /**get  supplier **/
         var data2 = {
             "action": "supplier"

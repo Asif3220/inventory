@@ -11,6 +11,7 @@ try {
     $sale_date_value = date("Y-m-d", strtotime($sale_date));
 
 	$sale_id_value = $_POST['sale_id'];
+	$order_id_value = $_POST['order_id'];
     $sku_value = $_POST['sku'];
     $title_value = $_POST['title'];
     $supplier_value = $_POST['supplier'];
@@ -24,19 +25,35 @@ try {
     if (!empty($sale_date_value) && !empty($sku_value) && !empty($title_value) && !empty($supplier_value) && !empty($cost_price_value) && !empty($quantity_value) && !empty($sale_price_value) && !empty($profit_retained_value)) {
 
         if (!empty($id_value)) {
-            $updateInvSql = "UPDATE sales SET sale_date=:sale_date_value, sku=:sku_value, title=:title_value, 	supplier=:supplier_value, cost_price=:cost_price_value, quantity_purchased=:quantity_value, sale_price=:sale_price_value, profit_retained=:profit_retained_value, status=:status_value, date_modified=:date_modified_value WHERE id=:id_value";
+		//echo "<br>updateInvSql : ".
+            $updateInvSql = "UPDATE sales SET order_id=:order_id_value, sale_date=:sale_date_value, sku=:sku_value, title=:title_value, 	supplier=:supplier_value, cost_price=:cost_price_value, quantity_purchased=:quantity_value, sale_price=:sale_price_value, profit_retained=:profit_retained_value, status=:status_value, date_modified=:date_modified_value WHERE id=:id_value";
             $updateInvSqlStatement = $myMySQLPDOCon->prepare($updateInvSql);
-            $updateInvSqlParameter = array("sale_date_value" => $sale_date_value, "sku_value" => $sku_value, "title_value" => $title_value, "supplier_value" => $supplier_value, "cost_price_value" => $cost_price_value, "quantity_value" => $quantity_value, "sale_price_value" => $sale_price_value, "profit_retained_value" => $profit_retained_value, "status_value" => $status_value, "date_modified_value" => $date_added_value, "id_value" => $id_value);
+            $updateInvSqlParameter = array("order_id_value" => $order_id_value, "sale_date_value" => $sale_date_value, "sku_value" => $sku_value, "title_value" => $title_value, "supplier_value" => $supplier_value, "cost_price_value" => $cost_price_value, "quantity_value" => $quantity_value, "sale_price_value" => $sale_price_value, "profit_retained_value" => $profit_retained_value, "status_value" => $status_value, "date_modified_value" => $date_added_value, "id_value" => $id_value);
             $updateInvSqlStatement->execute($updateInvSqlParameter);
 
+			//echo '<br><br> errorCode : '.$updateInvSqlStatement->errorCode();
+			
+			//echo "<br>isUpdated : ".
             $isUpdated = $updateInvSqlStatement->rowCount();
         } else {
-            $insertInvSql = "INSERT INTO sales SET sale_id=:sale_id_value, sale_date=:sale_date_value, sku=:sku_value, title=:title_value, supplier=:supplier_value, cost_price=:cost_price_value, quantity_purchased=:quantity_value, sale_price=:sale_price_value, profit_retained=:profit_retained_value, status=:status_value, date_added=:date_added_value";
+		//echo "<br>insertInvSql : ".
+            $insertInvSql = "INSERT INTO sales SET sale_id=:sale_id_value, order_id=:order_id_value, sale_date=:sale_date_value, sku=:sku_value, title=:title_value, supplier=:supplier_value, cost_price=:cost_price_value, quantity_purchased=:quantity_value, sale_price=:sale_price_value, profit_retained=:profit_retained_value, status=:status_value, date_added=:date_added_value";
             $insertInvSqlStatement = $myMySQLPDOCon->prepare($insertInvSql);
-            $insertInvSqlParameter = array("sale_id_value" => $sale_id_value, "sale_date_value" => $sale_date_value, "sku_value" => $sku_value, "title_value" => $title_value, "supplier_value" => $supplier_value, "cost_price_value" => $cost_price_value, "quantity_value" => $quantity_value, "sale_price_value" => $sale_price_value, "profit_retained_value" => $profit_retained_value, "status_value" => $status_value, "date_added_value" => $date_added_value);
+            $insertInvSqlParameter = array("sale_id_value" => $sale_id_value, "order_id_value" => $order_id_value, "sale_date_value" => $sale_date_value, "sku_value" => $sku_value, "title_value" => $title_value, "supplier_value" => $supplier_value, "cost_price_value" => $cost_price_value, "quantity_value" => $quantity_value, "sale_price_value" => $sale_price_value, "profit_retained_value" => $profit_retained_value, "status_value" => $status_value, "date_added_value" => $date_added_value);
 
             $insertInvSqlStatement->execute($insertInvSqlParameter);
             
+			//echo '<br><br> errorCode : '.$insertInvSqlStatement->errorCode();
+			
+			if($insertInvSqlStatement->errorCode() > 0)
+			{
+				$errors = $insertInvSqlStatement->errorInfo();
+				//echo '<br><br>insertInvSqlStatement errors<pre>';
+				//print_r($errors);
+				//echo '<br><br> insertInvSqlStatement error : '.($errors[2]);
+			}
+			
+			//echo "<br>lastInsertId : ".
             $lastInsertId = $myMySQLPDOCon->lastInsertId();      
         }
     } else {

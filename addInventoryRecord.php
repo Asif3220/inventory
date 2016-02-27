@@ -12,6 +12,7 @@ if(!empty($id_value)){
 	$inventoryRecords = $selectInvSqlStatement->fetchAll();
 	$product_image = "";
 	if(count($inventoryRecords)>0){
+		$supplier_id = $inventoryRecords[0]["supplier_id"];
 		$title = $inventoryRecords[0]["title"];
 		$sku = $inventoryRecords[0]["sku"];
 		$cost_price = $inventoryRecords[0]["cost_price"];
@@ -87,7 +88,14 @@ $purchase_id = getProperPurchaseId();
 		}
 		</script>	
 		<style>
-		input#purchase_id {    text-transform: uppercase;}
+		input#purchase_id, input#supplier_id{    text-transform: uppercase;}
+		.myForm
+		{
+			width: 750px;
+			margin-left: auto;
+			margin-right: auto;
+			float: none;
+		}		
 		</style>	
   </head>
 
@@ -152,7 +160,7 @@ $purchase_id = getProperPurchaseId();
           <h2 class="sub-header"><?php echo (!empty($id_value))?'Edit':'Add';?> Inventory Record</h2>
           <div class="table-responsive" style="width:100%">
 
-    <div id="maincontent" class="span8"> 
+    <div id="maincontent" class="span8 myForm"> 
       <form id="add-inventory-form" class="form-horizontal" method="post" action="insertInventory.php" enctype="multipart/form-data">
 
 		
@@ -173,15 +181,23 @@ $purchase_id = getProperPurchaseId();
 		</div>
 		
           <div class="form-control-group">
-		  <div class="col-xs-4">
+		  <div class="col-xs-6">
             <label class="control-label" for="purchase_id">Purchase ID</label>
             
               <input type="text" class="form-control input-md" id="purchase_id"  name="purchase_id" placeholder="Purchase ID" value="<?php echo (!empty($purchase_id))?$purchase_id:'';?>" <?php if(!empty($purchase_id)){echo 'readonly="true"';}?> >
             </div>
           </div>
+		  
+          <div class="form-control-group">
+		  <div class="col-xs-6">
+            <label class="control-label" for="purchase_id">Supplier ID</label>
+            
+              <input type="text" class="form-control input-md" id="supplier_id"  name="supplier_id" placeholder="Supplier ID" value="<?php echo (!empty($supplier_id))?$supplier_id:'';?>">
+            </div>
+          </div>		  
 		  		
 		  <div class="form-control-group">
-		  <div class="col-xs-4">
+		  <div class="col-xs-6">
             <label class="control-label" for="purchase_date">Purchase Date</label>
 
 			  
@@ -201,7 +217,7 @@ $purchase_id = getProperPurchaseId();
           
 	  
           <div class="form-control-group">
-		  <div class="col-xs-4">
+		  <div class="col-xs-6">
             <label class="control-label" for="sku">SKU</label>
             
               <input type="text" class="form-control input-md" id="sku"  name="sku" placeholder="SKU" value="<?php if(isset($sku)){echo $sku;}?>">

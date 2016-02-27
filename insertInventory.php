@@ -50,6 +50,7 @@ try {
     $purchase_date = (isset($_REQUEST['purchase_date'])) ? $_REQUEST['purchase_date'] : '';
     $purchase_date_value = date("Y-m-d", strtotime($purchase_date));
 
+	$supplier_id_value = $_POST['supplier_id'];
     $purchase_id_value = $_POST['purchase_id'];
     $sku_value = $_POST['sku'];
     $title_value = $_POST['title'];
@@ -121,9 +122,9 @@ try {
     if (!empty($purchase_date_value) && !empty($sku_value) && !empty($title_value) && !empty($supplier_value) && !empty($cost_price_value) && !empty($quantity_value) && !empty($total_cost_value)) {
         if (!empty($id_value)) {
             //echo "<br>updateInvSql ".
-            $updateInvSql = "UPDATE inventory SET purchase_date=:purchase_date_value, sku=:sku_value, title=:title_value, 	supplier=:supplier_value, cost_price=:cost_price_value, quantity=:quantity_value, total_cost=:total_cost_value, status=:status_value, date_modified=:date_added_value, product_image=:product_image_value WHERE id=:id_value";
+            $updateInvSql = "UPDATE inventory SET supplier_id =:supplier_id_value, purchase_date=:purchase_date_value, sku=:sku_value, title=:title_value, 	supplier=:supplier_value, cost_price=:cost_price_value, quantity=:quantity_value, total_cost=:total_cost_value, status=:status_value, date_modified=:date_added_value, product_image=:product_image_value WHERE id=:id_value";
             $updateInvSqlStatement = $myMySQLPDOCon->prepare($updateInvSql);
-            $updateInvSqlParameter = array("purchase_date_value" => $purchase_date_value, "sku_value" => $sku_value, "title_value" => $title_value, "supplier_value" => $supplier_value, "cost_price_value" => $cost_price_value, "quantity_value" => $quantity_value, "total_cost_value" => $total_cost_value, "status_value" => $status_value, "date_added_value" => $date_added_value, "product_image_value" => $product_image_value, "id_value" => $id_value);
+            $updateInvSqlParameter = array("supplier_id_value" => $supplier_id_value, "purchase_date_value" => $purchase_date_value, "sku_value" => $sku_value, "title_value" => $title_value, "supplier_value" => $supplier_value, "cost_price_value" => $cost_price_value, "quantity_value" => $quantity_value, "total_cost_value" => $total_cost_value, "status_value" => $status_value, "date_added_value" => $date_added_value, "product_image_value" => $product_image_value, "id_value" => $id_value);
             $updateInvSqlStatement->execute($updateInvSqlParameter);
             
             //echo "<br>updateInvSqlParameter<pre>";
@@ -133,9 +134,9 @@ try {
             $isUpdated = $updateInvSqlStatement->rowCount();
         } else {
             //echo "<br>insertInvSql ".
-            $insertInvSql = "INSERT INTO inventory SET purchase_id=:purchase_id_value, purchase_date=:purchase_date_value, sku=:sku_value, title=:title_value,supplier=:supplier_value, cost_price=:cost_price_value, quantity=:quantity_value, total_cost=:total_cost_value, status=:status_value, date_added=:date_added_value,product_image=:product_image_value";
+            $insertInvSql = "INSERT INTO inventory SET purchase_id=:purchase_id_value, supplier_id =:supplier_id_value, purchase_date=:purchase_date_value, sku=:sku_value, title=:title_value,supplier=:supplier_value, cost_price=:cost_price_value, quantity=:quantity_value, total_cost=:total_cost_value, status=:status_value, date_added=:date_added_value,product_image=:product_image_value";
             $insertInvSqlStatement = $myMySQLPDOCon->prepare($insertInvSql);
-            $insertInvSqlParameter = array("purchase_id_value" => $purchase_id_value, "purchase_date_value" => $purchase_date_value, "sku_value" => $sku_value, "title_value" => $title_value, "supplier_value" => $supplier_value, "cost_price_value" => $cost_price_value, "quantity_value" => $quantity_value, "total_cost_value" => $total_cost_value, "status_value" => $status_value, "date_added_value" => $date_added_value, "product_image_value" => $product_image_value);
+            $insertInvSqlParameter = array("purchase_id_value" => $purchase_id_value, "supplier_id_value" => $supplier_id_value, "purchase_date_value" => $purchase_date_value, "sku_value" => $sku_value, "title_value" => $title_value, "supplier_value" => $supplier_value, "cost_price_value" => $cost_price_value, "quantity_value" => $quantity_value, "total_cost_value" => $total_cost_value, "status_value" => $status_value, "date_added_value" => $date_added_value, "product_image_value" => $product_image_value);
             $insertInvSqlStatement->execute($insertInvSqlParameter);
 
             //echo "<br>insertInvSqlParameter<pre>";

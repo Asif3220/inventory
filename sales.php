@@ -17,13 +17,13 @@ $selectInvSql = "";
 if(!empty($from_date) && !empty($to_date)){
 	$from_date_ymd = date("Y-m-d", strtotime($from_date));
 	$to_date_ymd = date("Y-m-d", strtotime($to_date));
-	$selectInvSql = "SELECT id, sale_id, title, sku, cost_price, quantity_purchased, sale_price, sale_date, supplier, profit_retained FROM sales WHERE sale_date BETWEEN '".$from_date_ymd."' AND '".$to_date_ymd."' LIMIT $start_from, $limit";
+	$selectInvSql = "SELECT id, sale_id, order_id, title, sku, cost_price, quantity_purchased, sale_price, sale_date, supplier, profit_retained FROM sales WHERE sale_date BETWEEN '".$from_date_ymd."' AND '".$to_date_ymd."' LIMIT $start_from, $limit";
 }else if(!empty($qInv)){
-	$selectInvSql = "SELECT id, sale_id, title, sku, cost_price, quantity_purchased, sale_price, sale_date, supplier, profit_retained FROM sales WHERE title LIKE '%".$qInv."%' LIMIT $start_from, $limit";
+	$selectInvSql = "SELECT id, sale_id, order_id, title, sku, cost_price, quantity_purchased, sale_price, sale_date, supplier, profit_retained FROM sales WHERE title LIKE '%".$qInv."%' LIMIT $start_from, $limit";
 }else if(!empty($sale_id)){
-	$selectInvSql = "SELECT id, sale_id, title, sku, cost_price, quantity_purchased, sale_price, sale_date, supplier, profit_retained FROM sales WHERE sale_id LIKE '%".$sale_id."%' LIMIT $start_from, $limit";
+	$selectInvSql = "SELECT id, sale_id, order_id, title, sku, cost_price, quantity_purchased, sale_price, sale_date, supplier, profit_retained FROM sales WHERE sale_id LIKE '%".$sale_id."%' LIMIT $start_from, $limit";
 }else{
-	$selectInvSql = "SELECT id, sale_id, title, sku, cost_price, quantity_purchased, sale_price, sale_date, supplier, profit_retained FROM sales LIMIT $start_from, $limit";
+	$selectInvSql = "SELECT id, sale_id, order_id, title, sku, cost_price, quantity_purchased, sale_price, sale_date, supplier, profit_retained FROM sales LIMIT $start_from, $limit";
 }
 
 if(!empty($selectInvSql)){
@@ -116,12 +116,20 @@ function getSaleSum($field){
 	}	
 	
     function PrintDiv() {    
-       var divToPrint = document.getElementById('divToPrint');
-       var popupWin = window.open('', '_blank', 'width=1200,height=600');
-       popupWin.document.open();
-       popupWin.document.write('<html><body onload="window.print()">' + divToPrint.innerHTML + '</html>');
-        popupWin.document.close();
-    }	
+		$('table tr').find('td:eq(1),th:eq(1)').hide();
+		$('table tr').find('td:eq(11),th:eq(11)').hide();
+		$("#bulk_delete_submit").hide();
+		
+		var divToPrint = document.getElementById('divToPrint').innerHTML;
+		var popupWin = window.open('', '_blank', 'width=1200,height=600');
+		popupWin.document.open();
+		popupWin.document.write('<html><body onload="window.print()">' + divToPrint + '</html>');
+		popupWin.document.close();
+		
+		$('table tr').find('td:eq(1),th:eq(1)').show();
+		$('table tr').find('td:eq(11),th:eq(11)').show();
+		$("#bulk_delete_submit").show();
+    }
 	
 	function deleteConfirm(){
 		var result = confirm("Are you sure to delete sales records?");
@@ -294,6 +302,7 @@ function getSaleSum($field){
 				  <th><input type="checkbox" name="select_all" id="select_all" value=""/></th>   
 				 <!-- <th>Sale ID</th>-->
                   <th>Product Title</th>
+				  <th>Order ID</th>
                   <th>SKU</th>
                   <th>Cost</th>
                   <th>Quantity Sold</th>
@@ -316,6 +325,7 @@ function getSaleSum($field){
 					  <td align="center"><input type="checkbox" name="checked_id[]" class="checkbox" value="<?php echo $invRow['id']; ?>"/></td>    
 					<!--  <td><?php //echo $invRow["sale_id"];?></td>-->
 					  <td><?php echo $invRow["title"];?></td>
+					  <td><?php echo $invRow["order_id"];?></td>
 					  <td><?php echo $invRow["sku"];?></td>
 					  <td><?php echo $invRow["cost_price"];?></td>
 					  <td><?php echo $invRow["quantity_purchased"];?></td>

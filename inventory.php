@@ -18,13 +18,13 @@ $selectInvSql = "";
 if(!empty($from_date) && !empty($to_date)){
 	$from_date_ymd = date("Y-m-d", strtotime($from_date));
 	$to_date_ymd = date("Y-m-d", strtotime($to_date));
-	$selectInvSql = "SELECT id, purchase_id, title, sku, cost_price, quantity, total_cost, purchase_date, supplier FROM inventory WHERE purchase_date BETWEEN '".$from_date_ymd."' AND '".$to_date_ymd."' LIMIT $start_from, $limit";
+	$selectInvSql = "SELECT id, purchase_id, supplier_id, title, sku, cost_price, quantity, total_cost, purchase_date, supplier FROM inventory WHERE purchase_date BETWEEN '".$from_date_ymd."' AND '".$to_date_ymd."' LIMIT $start_from, $limit";
 }else if(!empty($qInv)){
-	$selectInvSql = "SELECT id, purchase_id, title, sku, cost_price, quantity, total_cost, purchase_date, supplier FROM inventory WHERE title LIKE '%".$qInv."%' LIMIT $start_from, $limit";
+	$selectInvSql = "SELECT id, purchase_id, supplier_id, title, sku, cost_price, quantity, total_cost, purchase_date, supplier FROM inventory WHERE title LIKE '%".$qInv."%' LIMIT $start_from, $limit";
 }else if(!empty($purchase_id)){
-	$selectInvSql = "SELECT id, purchase_id, title, sku, cost_price, quantity, total_cost, purchase_date, supplier FROM inventory WHERE purchase_id LIKE '%".$purchase_id."%' LIMIT $start_from, $limit";
+	$selectInvSql = "SELECT id, purchase_id, supplier_id, title, sku, cost_price, quantity, total_cost, purchase_date, supplier FROM inventory WHERE purchase_id LIKE '%".$purchase_id."%' LIMIT $start_from, $limit";
 }else{
-	$selectInvSql = "SELECT id, purchase_id, title, sku, cost_price, quantity, total_cost, purchase_date, supplier FROM inventory LIMIT $start_from, $limit";
+	$selectInvSql = "SELECT id, purchase_id, supplier_id, title, sku, cost_price, quantity, total_cost, purchase_date, supplier FROM inventory LIMIT $start_from, $limit";
 }
 
 if(!empty($selectInvSql)){
@@ -103,11 +103,19 @@ function getCount($field){
 	}
 	
     function PrintDiv() {    
-       var divToPrint = document.getElementById('divToPrint');
-       var popupWin = window.open('', '_blank', 'width=1200,height=600');
-       popupWin.document.open();
-       popupWin.document.write('<html><body onload="window.print()">' + divToPrint.innerHTML + '</html>');
-        popupWin.document.close();
+		$('table tr').find('td:eq(1),th:eq(1)').hide();
+		$('table tr').find('td:eq(10),th:eq(10)').hide();
+		$("#bulk_delete_submit").hide();
+		
+		var divToPrint = document.getElementById('divToPrint').innerHTML;
+		var popupWin = window.open('', '_blank', 'width=1200,height=600');
+		popupWin.document.open();
+		popupWin.document.write('<html><body onload="window.print()">' + divToPrint + '</html>');
+		popupWin.document.close();
+		
+		$('table tr').find('td:eq(1),th:eq(1)').show();
+		$('table tr').find('td:eq(10),th:eq(10)').show();
+		$("#bulk_delete_submit").show();
     }
 	
 	function getStockBySKU(sku){
@@ -303,11 +311,11 @@ function getCount($field){
           <div class="table-responsive">
 		  <div id="divToPrint" style="display:block;">
 		  <form name="bulk_action_form" id="bulk_action_form" action="groupInventoryDelete.php" method="post" onSubmit="return deleteConfirm();"/>
-            <table class="table table-striped">
+            <table class="table table-striped" id="myTable">
               <thead>
                 <tr>
                   <th>#</th>
-				  <th><input type="checkbox" name="select_all" id="select_all" value=""/></th>   
+				  <th id="checkBoxColumnHeader"><input type="checkbox" name="select_all" id="select_all" value=""/></th>   
 				  <!--<th>Purchase ID</th>-->
                   <th>Product Title</th>
                   <th>SKU</th>
@@ -315,6 +323,7 @@ function getCount($field){
                   <th>Quantity</th>
 				  <th>Total Cost</th>
 			      <th>Purchase Date</th>
+				  <th>Supplier ID</th>
 				  <th>Supplier</th>
 				  <th>Action</th>
                 </tr>
@@ -328,7 +337,7 @@ function getCount($field){
 				
 					<tr>
 					  <td><?php echo $indx;?></td>
-					  <td align="center"><input type="checkbox" name="checked_id[]" class="checkbox" value="<?php echo $invRow['id']; ?>"/></td>       
+					  <td id="checkBoxColumnData" align="center"><input type="checkbox" name="checked_id[]" class="checkbox" value="<?php echo $invRow['id']; ?>"/></td>       
 					 <!-- <td><?php //echo $invRow["purchase_id"];?></td>-->
 					  <td><?php echo $invRow["title"];?></td>
 					  <td><?php echo $invRow["sku"];?></td>
@@ -336,6 +345,7 @@ function getCount($field){
 					  <td><?php echo $invRow["quantity"];?></td>
 					  <td><?php echo $invRow["total_cost"];?></td>
 					  <td><?php echo $invRow["purchase_date"];?></td>
+					  <td><?php echo $invRow["supplier_id"];?></td>
 					  <td><?php echo $invRow["supplier"];?></td>
 					  <td><a href="addInventoryRecord.php?id=<?php echo $invRow["id"];?>">Edit</a>&nbsp;|&nbsp;<a onClick="javascript:confirmDelete('<?php echo $invRow["id"];?>');" href="javascript:void(0)">Delete</a></td>  
 					</tr>                

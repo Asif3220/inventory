@@ -77,8 +77,16 @@ $sale_id = getProperSaleId();
     <![endif]-->
 	    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 		<script src="js/bootstrap-datepicker.js"></script>
+
 			<style>
-		input#sale_id {    text-transform: uppercase;}
+		input#sale_id, input#order_id{    text-transform: uppercase;}
+		.myForm
+		{
+			width: 750px;
+			margin-left: auto;
+			margin-right: auto;
+			float: none;
+		}
 		</style>	
   </head>
 
@@ -143,25 +151,32 @@ $sale_id = getProperSaleId();
           <h2 class="sub-header"><?php echo (!empty($id_value))?'Edit':'Add';?> Sales Order Record</h2>
           <div class="table-responsive" style="width:100%">
 
-    <div id="maincontent" class="span8"> 
-      <form id="add-salesorder-form" class="form-horizontal" method="post" action="insertSales.php">
-          
-		  
+    <div id="maincontent" class="span8 myForm"> 
+      <form id="add-salesorder-form" class="form-horizontal" method="post" action="insertSales.php" >
 		  <div class="form-control-group">
-		  <div class="col-xs-4">
+		  <div class="col-xs-6">
             <label class="control-label" for="sale_id">Sale ID</label>
             
               <input type="text" class="form-control input-md" id="sale_id"  name="sale_id" placeholder="Sale ID" value="<?php echo (!empty($sale_id))?$sale_id:'';?>"  <?php if(!empty($sale_id)){echo 'readonly="true"';}?> >
             </div>
           </div>
 		  
+		  <div class="form-control-group">
+		  <div class="col-xs-6">
+            <label class="control-label" for="sale_id">Order ID</label>
+            
+              <input type="text" class="form-control input-md" id="order_id"  name="order_id" placeholder="Order ID" value="<?php echo (!empty($order_id))?$order_id:'';?>" >
+            </div>
+          </div>		  
+		  
           <div class="form-control-group">
-		   <div class="col-xs-4">
+		   <div class="col-xs-6">
             <label class="control-label" for="sku">SKU</label>
-		   <select name="sku" id="sku" class="form-control">
-		   <option value="">Select SKU</option>	   
+			<input type="text" class="form-control input-md" id="sku"  name="sku" placeholder="SKU" value="<?php echo (!empty($sku))?$sku:'';?>" onBlur="checkSKU();" >
+		   <!--<select name="sku" id="sku" class="form-control">
+		   <option value="">Select SKU</option>	 -->  
 		   <?php
-			$selectInvSql2 = "SELECT DISTINCT(i.sku) FROM inventory i, master_inventory mi WHERE i.sku = mi.sku AND mi.stock>0";
+/*			$selectInvSql2 = "SELECT DISTINCT(i.sku) FROM inventory i, master_inventory mi WHERE i.sku = mi.sku AND mi.stock>0";
 			$selectInvSqlStatement2 = $myMySQLPDOCon->prepare($selectInvSql2);
 			$selectInvSqlParameter2 = array("id_value"=>$id_value);
 			$selectInvSqlStatement2->execute($selectInvSqlParameter2);
@@ -180,15 +195,15 @@ $sale_id = getProperSaleId();
 					}
 					echo '<option value="'.$sku_opt.'" '.$option_selected.'>'.$sku_opt.'</option>';
 				}
-			}
+			}*/
 		   ?>
-		    </select>
+		  <!--  </select>-->
 
             </div>
           </div>	
 		  
           <div class="form-control-group">
-			<div class="col-xs-4">			  
+			<div class="col-xs-6">			  
             <label class="control-label" for="sale_date">Sale Date</label>
           
               <!--<input type="text" class="form-control input-md" id="purchase_date" name="purchase_date" placeholder="Purchase Date">-->
