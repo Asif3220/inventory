@@ -88,7 +88,8 @@ $(document).ready(function () {
         }
 
         if (quantity_purchased != null && quantity_purchased != "" && sale_price != null && sale_price != "" && cost_price != null && cost_price != "") {
-            $('#profit_retained').val(quantity_purchased * (parseInt(sale_price) - parseInt(cost_price)));
+			var calculatedValue = Number(quantity_purchased) * (Number(sale_price) - Number(cost_price));			
+            $('#profit_retained').val(calculatedValue.toFixed(2));			
         }
 		if($('#profit_retained').val()>0){
 			var decimalValue = $('#profit_retained').val().indexOf("."); 
@@ -101,8 +102,8 @@ $(document).ready(function () {
 
     $('#sale_price').focusout(function () {
         var quantity_purchased = $('#quantity_purchased').val();
-        var sale_price = $(this).val();
-        var cost_price = $('#cost_price').val();
+        var sale_price = Number($(this).val());
+        var cost_price = Number($('#cost_price').val());
         if (sale_price <= cost_price) {
             $('#sale_price').val("");
             alert("Please set sale price greater than cost price!");
@@ -115,7 +116,8 @@ $(document).ready(function () {
 			}				
 		}
         if (quantity_purchased != null && quantity_purchased != "" && sale_price != null && sale_price != "" && cost_price != null && cost_price != "") {
-            $('#profit_retained').val(quantity_purchased * (parseInt(sale_price) - parseInt(cost_price)));
+			var calculatedValue = Number(quantity_purchased) * (Number(sale_price) - Number(cost_price));			
+            $('#profit_retained').val(calculatedValue.toFixed(2));			
         }
 		if($('#profit_retained').val()>0){
 			var decimalValue = $('#profit_retained').val().indexOf("."); 
@@ -130,7 +132,8 @@ $(document).ready(function () {
         var quantity_purchased = $(this).val();
         var cost_price = $('#cost_price').val();
         if (quantity_purchased != null && quantity_purchased != "" && sale_price != null && sale_price != "" && cost_price != null && cost_price != "") {
-            $('#profit_retained').val(quantity_purchased * (parseInt(sale_price) - parseInt(cost_price)));
+			var calculatedValue = Number(quantity_purchased) * (Number(sale_price) - Number(cost_price));			
+            $('#profit_retained').val(calculatedValue.toFixed(2));		   
         }
 		if($('#profit_retained').val()>0){
 			var decimalValue = $('#profit_retained').val().indexOf("."); 
@@ -145,7 +148,8 @@ $(document).ready(function () {
         var quantity_purchased = $('#quantity_purchased').val();
         var sale_price = $('#sale_price').val();
         if (quantity_purchased != null && quantity_purchased != "" && sale_price != null && sale_price != "" && cost_price != null && cost_price != "") {
-            $('#profit_retained').val(quantity_purchased * (parseInt(sale_price) - parseInt(cost_price)));
+			var calculatedValue = Number(quantity_purchased) * (Number(sale_price) - Number(cost_price));			
+            $('#profit_retained').val(calculatedValue.toFixed(2));
         }
 		if($('#profit_retained').val()>0){
 		var decimalValue = $('#profit_retained').val().indexOf("."); 
@@ -158,11 +162,12 @@ $(document).ready(function () {
 
     $('#salesSaveButton').click(function () {
         var profit_retained = $('#profit_retained').val();
-        if (profit_retained <= 0) {
-            $('#profit_retained').val("");
-            alert("Please check the profit value went down - seems the sale price set below cost price!");
-            return false;
-        }
+        //if (profit_retained <= 0) {
+			//if($.isNumeric($("#profit_retained").val())){
+           // $('#profit_retained').val("");
+            //alert("Please check the profit value went down - seems the sale price set below cost price!");
+            //return false;
+        //}
     });
 
     $('#salesResetForm').click(function () {

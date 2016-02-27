@@ -276,7 +276,7 @@ function getCount($field){
 				<div class="well well-lg">Total Unique Purchase ID : <strong><?php echo getCount("purchase_id"); ?></strong> | Total SKU Count : <strong><?php echo getCount("sku"); ?></strong>&nbsp;&nbsp;
 				
 				<select name="sku" id="sku" class="form-control" onChange="getStockBySKU(this.value);">
-						<option value="">Get Stock By SKU</option>
+						<option value="">Get Current Stock By SKU</option>
 						<?php
 							$selectInvSql21 = "SELECT sku FROM master_inventory";
 							

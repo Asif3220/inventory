@@ -27,7 +27,7 @@ function getProperSaleId(){
 	global $myMySQLPDOCon;
 	$sale_id_p = "";
 	$today = date('Y-m-d');
-	$selectInvSql_p = "SELECT sale_id FROM sales WHERE sale_date=:sale_date_value ORDER BY id DESC LIMIT 1";
+	$selectInvSql_p = "SELECT sale_id FROM sales WHERE DATE_FORMAT(date_added, '%Y-%m-%d')=:sale_date_value ORDER BY id DESC LIMIT 1";
 	$selectInvSqlStatement_p = $myMySQLPDOCon->prepare($selectInvSql_p);
 	$selectInvSqlParameter_p = array("sale_date_value"=>$today);
 	$selectInvSqlStatement_p->execute($selectInvSqlParameter_p);
@@ -77,7 +77,9 @@ $sale_id = getProperSaleId();
     <![endif]-->
 	    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 		<script src="js/bootstrap-datepicker.js"></script>
-		
+			<style>
+		input#sale_id {    text-transform: uppercase;}
+		</style>	
   </head>
 
   <body>
@@ -169,10 +171,10 @@ $sale_id = getProperSaleId();
 				foreach($inventoryRecords2 as $selVal)
 				{
 					$option_selected = "";
-					$id = $selVal["id"];
-					$sku_opt = $selVal["sku"];
-					$cost_price = $selVal["cost_price"];
-					if($sku_opt == $sku)
+					$id = (isset($selVal["id"]))?$selVal["id"]:""; 
+					$sku_opt = (isset($selVal["sku"]))?$selVal["sku"]:"";
+					$cost_price = (isset($selVal["cost_price"]))?$selVal["cost_price"]:"";
+					if((isset($_REQUEST['sku'])) &&($sku_opt == $_REQUEST['sku']))
 					{
 						$option_selected = "selected";
 					}

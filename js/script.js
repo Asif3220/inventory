@@ -64,8 +64,8 @@ $(document).ready(function(){
 			
 		 sale_id: {
 	        required: true,
-			minlength: 5,
-			maxlength: 10
+			minlength: 10,
+			maxlength: 12
 	      },
 		  
 	       sale_date: {
@@ -110,7 +110,7 @@ $(document).ready(function(){
 	    },
 		
 		messages: {
-			sale_id: "Please enter any alphanumeric string between 5 to 10 characters.",
+			sale_id: "Please enter any alphanumeric string between 10 to 12 characters.",
 			sale_date: "Please select a date from datepicker."
 		},
 		

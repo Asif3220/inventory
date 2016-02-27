@@ -28,7 +28,7 @@ function getProperPurchaseId(){
 	global $myMySQLPDOCon;
 	$purchase_id_p = "";
 	$today = date('Y-m-d');
-	$selectInvSql_p = "SELECT purchase_id FROM inventory WHERE purchase_date=:purchase_date_value ORDER BY id DESC LIMIT 1";
+	$selectInvSql_p = "SELECT purchase_id FROM inventory WHERE DATE_FORMAT(purchase_date, '%Y-%m-%d')=:purchase_date_value ORDER BY id DESC LIMIT 1";
 	$selectInvSqlStatement_p = $myMySQLPDOCon->prepare($selectInvSql_p);
 	$selectInvSqlParameter_p = array("purchase_date_value"=>$today);
 	$selectInvSqlStatement_p->execute($selectInvSqlParameter_p);
@@ -85,7 +85,10 @@ $purchase_id = getProperPurchaseId();
 				location.href = "deleteProductImage.php?id="+id;
 			}
 		}
-		</script>		
+		</script>	
+		<style>
+		input#purchase_id {    text-transform: uppercase;}
+		</style>	
   </head>
 
   <body>
@@ -313,24 +316,35 @@ $purchase_id = getProperPurchaseId();
 			$('#quantity').focusout(function() {
 				var a = $('input[name="cost_price"]').val();
 				var b = $(this).val();
-				$('input[name="total_cost"]').val(a * b);
-				if($('#total_cost').val()!="" && $('#total_cost').val()>0){
-					var decimalValue = $('#total_cost').val().indexOf("."); 
-					if(decimalValue==-1){
-						$('#total_cost').val($('#total_cost').val()+".00");
-					}
+//				$('input[name="total_cost"]').val(a * b);
+//				if($('#total_cost').val()!="" && $('#total_cost').val()>0){
+//					var decimalValue = $('#total_cost').val().indexOf("."); 
+//					if(decimalValue==-1){
+//						$('#total_cost').val($('#total_cost').val()+".00");
+//					}
+//				}
+				var totalCost = (Number(a) *  Number(b));
+				$('input[name="total_cost"]').val(totalCost);
+				if(totalCost!="" && totalCost>0){
+					//var decimalValue = $('#total_cost').val().indexOf("."); 
+					//if(decimalValue==-1){				
+						//$('#total_cost').val($('#total_cost').val()+".00");
+						$('#total_cost').val(totalCost.toFixed(2));
+					//}
 				}
 			});
 						
 			$('#quantity').keyup(function() {
 				var a = $('input[name="cost_price"]').val();
 				var b = $(this).val();
-				$('input[name="total_cost"]').val(a * b);
-				if($('#total_cost').val()!="" && $('#total_cost').val()>0){
-					var decimalValue = $('#total_cost').val().indexOf("."); 
-					if(decimalValue==-1){				
-						$('#total_cost').val($('#total_cost').val()+".00");
-					}
+				var totalCost = (Number(a) *  Number(b));
+				$('input[name="total_cost"]').val(totalCost);
+				if(totalCost!="" && totalCost>0){
+					//var decimalValue = $('#total_cost').val().indexOf("."); 
+					//if(decimalValue==-1){				
+						//$('#total_cost').val($('#total_cost').val()+".00");
+						$('#total_cost').val(totalCost.toFixed(2));
+					//}
 				}
 			});
 			
@@ -341,12 +355,16 @@ $purchase_id = getProperPurchaseId();
 			}
 				var a = $('input[name="quantity"]').val();
 				var b = $(this).val();
-				$('input[name="total_cost"]').val(a * b);
-				if($('#total_cost').val()!="" && $('#total_cost').val()>0){
-					var decimalValue = $('#total_cost').val().indexOf("."); 
-					if(decimalValue==-1){					
-						$('#total_cost').val($('#total_cost').val()+".00");
-					}
+				//$('input[name="total_cost"]').val(a * b);
+				var totalCost = (Number(a) *  Number(b));
+				//$('input[name="total_cost"]').val(totalCost.toFixed(2));				
+				//if($('#total_cost').val()!="" && $('#total_cost').val()>0){
+				if(totalCost!="" && totalCost>0){
+					//var decimalValue = $('#total_cost').val().indexOf("."); 
+					//if(decimalValue==-1){					
+					//	$('#total_cost').val($('#total_cost').val()+".00");
+					//}
+					$('#total_cost').val(totalCost.toFixed(2));
 				}
 			});
 						
