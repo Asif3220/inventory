@@ -77,8 +77,8 @@ $(document).ready(function(){
 
 		 order_id: {
 	        required: true,
-			minlength: 10,
-			maxlength: 12
+			minlength: 15,
+			maxlength: 25
 	      },
 		  
 	       sale_date: {
@@ -124,7 +124,7 @@ $(document).ready(function(){
 		
 		messages: {
 			sale_id: "Please enter any alphanumeric string between 10 to 12 characters.",
-			order_id: "Please enter any alphanumeric string between 10 to 12 characters.",
+			order_id: "Please enter any alphanumeric string between 15 to 25 characters.",
 			sale_date: "Please select a date from datepicker."
 		},
 		

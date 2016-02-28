@@ -20,7 +20,11 @@ if(!empty($from_date) && !empty($to_date)){
 	$to_date_ymd = date("Y-m-d", strtotime($to_date));
 	$selectInvSql = "SELECT id, purchase_id, supplier_id, title, sku, cost_price, quantity, total_cost, purchase_date, supplier FROM inventory WHERE purchase_date BETWEEN '".$from_date_ymd."' AND '".$to_date_ymd."' LIMIT $start_from, $limit";
 }else if(!empty($qInv)){
-	$selectInvSql = "SELECT id, purchase_id, supplier_id, title, sku, cost_price, quantity, total_cost, purchase_date, supplier FROM inventory WHERE title LIKE '%".$qInv."%' LIMIT $start_from, $limit";
+	//$selectInvSql = "SELECT id, purchase_id, supplier_id, title, sku, cost_price, quantity, total_cost, purchase_date, supplier FROM inventory WHERE title LIKE '%".$qInv."%' LIMIT $start_from, $limit";
+	//echo "<br>selectInvSql : ".
+	$selectInvSql = "SELECT id, purchase_id, supplier_id, title, sku, cost_price, quantity, total_cost, purchase_date, supplier FROM inventory WHERE (sku LIKE '%".trim($qInv)."%' OR supplier_id LIKE '%".trim($qInv)."%') LIMIT $start_from, $limit";
+
+
 }else if(!empty($purchase_id)){
 	$selectInvSql = "SELECT id, purchase_id, supplier_id, title, sku, cost_price, quantity, total_cost, purchase_date, supplier FROM inventory WHERE purchase_id LIKE '%".$purchase_id."%' LIMIT $start_from, $limit";
 }else{
@@ -33,6 +37,46 @@ if(!empty($selectInvSql)){
 	$selectInvSqlStatement->execute($selectInvSqlParameter);
 	$inventoryRecords = array();
 	$inventoryRecords = $selectInvSqlStatement->fetchAll();
+	
+/*	if($selectInvSqlStatement->errorCode() > 0)
+	{
+		$errors = $selectInvSqlStatement->errorInfo();
+		echo '<br><br>selectInvSqlStatement errors<pre>';
+		print_r($errors);
+		echo '<br><br> selectInvSqlStatement error : '.($errors[2]);
+	}*/
+			
+}
+
+
+function getStatForSearchedResult($inputVar, $qInv){
+	global $myMySQLPDOCon;
+	$qSalesSqlClause = "";
+	if(!empty($qInv)){
+		$qSalesSqlClause = "(sku LIKE '%".trim($qInv)."%' OR  supplier_id LIKE '%".trim($qInv)."%')";
+	}
+	$selectSaleSearchedSql = "";
+	if(!empty($inputVar)){
+		if($inputVar == "totalQuantityPurchased"){
+			//echo "<br>selectSaleSearchedSql : ".
+			$selectSaleSearchedSql = "SELECT SUM(quantity) AS result_total FROM inventory WHERE 1=1 AND ".$qSalesSqlClause;
+
+		}else if($inputVar == "totalSpend"){
+			//echo "<br>selectSaleSearchedSql : ".
+			$selectSaleSearchedSql = "SELECT SUM(total_cost) AS result_total FROM inventory WHERE 1=1 AND ".$qSalesSqlClause;
+		}	
+		
+		if(!empty($selectSaleSearchedSql)){
+			$selectSaleSearchedSqlStatement = $myMySQLPDOCon->prepare($selectSaleSearchedSql);
+			$selectSaleSearchedSqlStatement->execute();
+			$selectSaleSearchedRecords = array();
+			$selectSaleSearchedRecords = $selectSaleSearchedSqlStatement->fetchAll();
+			if(count($selectSaleSearchedRecords)>0){
+				return $selectSaleSearchedRecords[0]["result_total"];
+			}
+			return 0;
+		}
+	}
 }
 
 function getCount($field){
@@ -156,7 +200,7 @@ function getCount($field){
             <li><a href="logout.php">Log Out</a></li>
           </ul>
           <form class="navbar-form navbar-right">
-            <input type="text" id="searchInventory" name="searchInventory" class="form-control" placeholder="Search..." value="<?php if(isset($qInv)){echo $qInv;}?>">
+            <input type="text" id="searchInventory" name="searchInventory" class="form-control input-md" size="25" placeholder="Search By Supplier Id or SKU" value="<?php if(isset($qInv)){echo $qInv;}?>">
           </form>
         </div>
       </div>
@@ -237,7 +281,7 @@ function getCount($field){
 						<button onClick="location.href='exportInventory.php?sql=<?php echo base64_encode($selectInvSql);?>';" type="button" class="btn btn-info btn-large">Export</button>
 						<button onClick="location.href='addInventoryRecord.php';" type="button" class="btn btn-primary btn-large">Add Inventory</button>
 						<select name="purchase_id" id="purchase_id" class="form-control" onChange="findPurchaseByID(this.value);">
-						<option value="">Search By Purchase ID</option>
+						<option value="">Search By Purchase Id</option>
 						<?php
 							$selectInvSql2 = "SELECT DISTINCT(purchase_id) AS purchase_id FROM inventory";
 							
@@ -281,12 +325,14 @@ function getCount($field){
 		<div class="row">
 				<div class="col-sm-12">
 				<form class="navbar-form navbar-center" name="dateRangeForm" id="dateRangeForm">
-				<div class="well well-lg">Total Unique Purchase ID : <strong><?php echo getCount("purchase_id"); ?></strong> | Total SKU Count : <strong><?php echo getCount("sku"); ?></strong>&nbsp;&nbsp;
+				<div class="well well-lg">
+				<?php if(empty($qInv)){?>
+				Total Unique Purchase ID : <strong><?php echo getCount("purchase_id"); ?></strong> | Total SKU Count : <strong><?php echo getCount("sku"); ?></strong>&nbsp;&nbsp;
 				
-				<select name="sku" id="sku" class="form-control" onChange="getStockBySKU(this.value);">
+				<!--<select name="sku" id="sku" class="form-control" onChange="getStockBySKU(this.value);">
 						<option value="">Get Current Stock By SKU</option>
 						<?php
-							$selectInvSql21 = "SELECT sku FROM master_inventory";
+							/*$selectInvSql21 = "SELECT sku FROM master_inventory";
 							
 							$selectInvSqlStatement21 = $myMySQLPDOCon->prepare($selectInvSql21);
 							$selectInvSqlParameter21 = array();
@@ -294,15 +340,19 @@ function getCount($field){
 							$inventoryRecords21 = array();
 							$inventoryRecords21 = $selectInvSqlStatement21->fetchAll();
 							if(count($inventoryRecords21)>0){
-								foreach($inventoryRecords21 as $invpur21){
+								foreach($inventoryRecords21 as $invpur21){*/
 								?>
-								<option value="<?php echo $invpur21["sku"]; ?>" <?php if(isset($_REQUEST['sku']) && ($invpur21["sku"] == $_REQUEST['sku'])){echo "selected";} ?> > <?php echo $invpur21["sku"]; ?></option>
+								<option value="<?php // echo $invpur21["sku"]; ?>" <?php // if(isset($_REQUEST['sku']) && ($invpur21["sku"] == $_REQUEST['sku'])){echo "selected";} ?> > <?php // echo strtoupper($invpur21["sku"]); ?></option>
 								<?php
-								}
-							}
+								//}
+							//}
 						?>
 				</select>
-				&nbsp;&nbsp;<b><span id="stock_display"></b></span>&nbsp;&nbsp;
+				&nbsp;&nbsp;<b><span id="stock_display"></b></span>&nbsp;&nbsp; -->
+				
+				<?php }else{?>
+					Total Product Purchased : <?php echo getStatForSearchedResult("totalQuantityPurchased", $qInv); ?> | Total Cost : <?php echo getStatForSearchedResult("totalSpend", $qInv); ?>
+				<?php }?>
 				</div>
 				</form>
 				</div>	
@@ -340,12 +390,12 @@ function getCount($field){
 					  <td id="checkBoxColumnData" align="center"><input type="checkbox" name="checked_id[]" class="checkbox" value="<?php echo $invRow['id']; ?>"/></td>       
 					 <!-- <td><?php //echo $invRow["purchase_id"];?></td>-->
 					  <td><?php echo $invRow["title"];?></td>
-					  <td><?php echo $invRow["sku"];?></td>
+					  <td><?php echo strtoupper($invRow["sku"]);?></td>
 					  <td><?php echo $invRow["cost_price"];?></td>
 					  <td><?php echo $invRow["quantity"];?></td>
 					  <td><?php echo $invRow["total_cost"];?></td>
 					  <td><?php echo $invRow["purchase_date"];?></td>
-					  <td><?php echo $invRow["supplier_id"];?></td>
+					  <td><?php echo strtoupper($invRow["supplier_id"]);?></td>
 					  <td><?php echo $invRow["supplier"];?></td>
 					  <td><a href="addInventoryRecord.php?id=<?php echo $invRow["id"];?>">Edit</a>&nbsp;|&nbsp;<a onClick="javascript:confirmDelete('<?php echo $invRow["id"];?>');" href="javascript:void(0)">Delete</a></td>  
 					</tr>                

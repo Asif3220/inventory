@@ -19,7 +19,8 @@ if(!empty($from_date) && !empty($to_date)){
 	$to_date_ymd = date("Y-m-d", strtotime($to_date));
 	$selectInvSql = "SELECT id, sale_id, order_id, title, sku, cost_price, quantity_purchased, sale_price, sale_date, supplier, profit_retained FROM sales WHERE sale_date BETWEEN '".$from_date_ymd."' AND '".$to_date_ymd."' LIMIT $start_from, $limit";
 }else if(!empty($qInv)){
-	$selectInvSql = "SELECT id, sale_id, order_id, title, sku, cost_price, quantity_purchased, sale_price, sale_date, supplier, profit_retained FROM sales WHERE title LIKE '%".$qInv."%' LIMIT $start_from, $limit";
+	//$selectInvSql = "SELECT id, sale_id, order_id, title, sku, cost_price, quantity_purchased, sale_price, sale_date, supplier, profit_retained FROM sales WHERE title LIKE '%".$qInv."%' LIMIT $start_from, $limit";
+	$selectInvSql = "SELECT id, sale_id, order_id, title, sku, cost_price, quantity_purchased, sale_price, sale_date, supplier, profit_retained FROM sales WHERE (sku LIKE '%".trim($qInv)."%' OR  order_id LIKE '%".trim($qInv)."%') LIMIT $start_from, $limit";
 }else if(!empty($sale_id)){
 	$selectInvSql = "SELECT id, sale_id, order_id, title, sku, cost_price, quantity_purchased, sale_price, sale_date, supplier, profit_retained FROM sales WHERE sale_id LIKE '%".$sale_id."%' LIMIT $start_from, $limit";
 }else{
@@ -32,6 +33,36 @@ if(!empty($selectInvSql)){
 	$selectInvSqlStatement->execute($selectInvSqlParameter);
 	$inventoryRecords = array();
 	$inventoryRecords = $selectInvSqlStatement->fetchAll();
+}
+
+function getStatForSearchedResult($inputVar, $qInv){
+	global $myMySQLPDOCon;
+	$qSalesSqlClause = "";
+	if(!empty($qInv)){
+		$qSalesSqlClause = "(sku LIKE '%".trim($qInv)."%' OR  order_id LIKE '%".trim($qInv)."%')";
+	}
+	$selectSaleSearchedSql = "";
+	if(!empty($inputVar)){
+		if($inputVar == "totalQuantitySold"){
+			//echo "<br>selectSaleSearchedSql : ".
+			$selectSaleSearchedSql = "SELECT SUM(quantity_purchased) AS result_total FROM sales WHERE 1=1 AND ".$qSalesSqlClause;
+
+		}else if($inputVar == "totalProfitRetained"){
+			//echo "<br>selectSaleSearchedSql : ".
+			$selectSaleSearchedSql = "SELECT SUM(profit_retained) AS result_total FROM sales WHERE 1=1 AND ".$qSalesSqlClause;
+		}	
+		
+		if(!empty($selectSaleSearchedSql)){
+			$selectSaleSearchedSqlStatement = $myMySQLPDOCon->prepare($selectSaleSearchedSql);
+			$selectSaleSearchedSqlStatement->execute();
+			$selectSaleSearchedRecords = array();
+			$selectSaleSearchedRecords = $selectSaleSearchedSqlStatement->fetchAll();
+			if(count($selectSaleSearchedRecords)>0){
+				return $selectSaleSearchedRecords[0]["result_total"];
+			}
+			return 0;
+		}
+	}
 }
 
 function getSaleCount($field){
@@ -162,7 +193,7 @@ function getSaleSum($field){
             <li><a href="logout.php">Log Out</a></li>
           </ul>
           <form class="navbar-form navbar-right">
-            <input type="text" id="searchSales" name="searchSales" class="form-control" placeholder="Search..." value="<?php if(isset($qInv)){echo $qInv;}?>">
+            <input type="text" id="searchSales" name="searchSales" class="form-control" size="25" placeholder="Search By Order Id or SKU" value="<?php if(isset($qInv)){echo $qInv;}?>">
           </form>
         </div>
       </div>
@@ -244,7 +275,7 @@ function getSaleSum($field){
 						<button onClick="location.href='addSalesRecord.php';" type="button" class="btn btn-primary btn-large">Create Sale Order</button>
 						
 						<select name="sale_id" id="sale_id" class="form-control" onChange="findSaleByID(this.value);">
-						<option value="">Search By Sale ID</option>
+						<option value="">Search By Sales Id</option>
 						<?php
 							$selectInvSql2 = "SELECT DISTINCT(sale_id) AS sale_id FROM sales";
 							
@@ -287,7 +318,13 @@ function getSaleSum($field){
 
 		<div class="row">
 				<div class="col-sm-12">
-				<div class="well well-lg">Total Unique Sale ID : <strong><?php echo getSaleCount("sale_id"); ?></strong> | Total SKU Sold Count : <strong><?php echo getSaleCount("sku"); ?></strong> | Total Quantity Sold Count : <strong><?php echo getSaleSum("quantity_purchased"); ?></strong> | Total Profit : <strong><?php echo getSaleSum("profit_retained"); ?></strong></div>
+					<div class="well well-lg">
+						<?php if(empty($qInv)){?>
+							Total Unique Sale ID : <strong><?php echo getSaleCount("sale_id"); ?></strong> | Total SKU Sold Count : <strong><?php echo getSaleCount("sku"); ?></strong> | Total Quantity Sold Count : <strong><?php echo getSaleSum("quantity_purchased"); ?></strong> | Total Profit : <strong><?php echo getSaleSum("profit_retained"); ?></strong>
+						<?php }else{?>
+							Total Product Sold : <?php echo getStatForSearchedResult("totalQuantitySold", $qInv); ?> | Total Profit : <?php echo getStatForSearchedResult("totalProfitRetained", $qInv); ?>
+						<?php }?>
+					</div>
 				</div>	
 		</div>
 			
@@ -325,8 +362,8 @@ function getSaleSum($field){
 					  <td align="center"><input type="checkbox" name="checked_id[]" class="checkbox" value="<?php echo $invRow['id']; ?>"/></td>    
 					<!--  <td><?php //echo $invRow["sale_id"];?></td>-->
 					  <td><?php echo $invRow["title"];?></td>
-					  <td><?php echo $invRow["order_id"];?></td>
-					  <td><?php echo $invRow["sku"];?></td>
+					  <td><?php echo strtoupper($invRow["order_id"]);?></td>
+					  <td><?php echo strtoupper($invRow["sku"]);?></td>
 					  <td><?php echo $invRow["cost_price"];?></td>
 					  <td><?php echo $invRow["quantity_purchased"];?></td>
 					  <td><?php echo $invRow["sale_price"];?></td>

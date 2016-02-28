@@ -10,9 +10,9 @@ try {
     $sale_date = (isset($_REQUEST['sale_date'])) ? $_REQUEST['sale_date'] : '';
     $sale_date_value = date("Y-m-d", strtotime($sale_date));
 
-	$sale_id_value = $_POST['sale_id'];
-	$order_id_value = $_POST['order_id'];
-    $sku_value = $_POST['sku'];
+	$sale_id_value = strtoupper($_POST['sale_id']);
+	$order_id_value = strtoupper($_POST['order_id']);
+    $sku_value = strtoupper($_POST['sku']);
     $title_value = $_POST['title'];
     $supplier_value = $_POST['supplier'];
     $cost_price_value = $_POST['cost_price'];
@@ -31,7 +31,15 @@ try {
             $updateInvSqlParameter = array("order_id_value" => $order_id_value, "sale_date_value" => $sale_date_value, "sku_value" => $sku_value, "title_value" => $title_value, "supplier_value" => $supplier_value, "cost_price_value" => $cost_price_value, "quantity_value" => $quantity_value, "sale_price_value" => $sale_price_value, "profit_retained_value" => $profit_retained_value, "status_value" => $status_value, "date_modified_value" => $date_added_value, "id_value" => $id_value);
             $updateInvSqlStatement->execute($updateInvSqlParameter);
 
-			//echo '<br><br> errorCode : '.$updateInvSqlStatement->errorCode();
+/*			echo '<br><br> errorCode : '.$updateInvSqlStatement->errorCode();
+			
+			if($updateInvSqlStatement->errorCode() > 0)
+			{
+				$errors = $updateInvSqlStatement->errorInfo();
+				echo '<br><br>updateInvSqlStatement errors<pre>';
+				print_r($errors);
+				echo '<br><br> updateInvSqlStatement error : '.($errors[2]);
+			}		*/	
 			
 			//echo "<br>isUpdated : ".
             $isUpdated = $updateInvSqlStatement->rowCount();
@@ -43,16 +51,17 @@ try {
 
             $insertInvSqlStatement->execute($insertInvSqlParameter);
             
-			//echo '<br><br> errorCode : '.$insertInvSqlStatement->errorCode();
+			/*
+			echo '<br><br> errorCode : '.$insertInvSqlStatement->errorCode();
 			
 			if($insertInvSqlStatement->errorCode() > 0)
 			{
 				$errors = $insertInvSqlStatement->errorInfo();
-				//echo '<br><br>insertInvSqlStatement errors<pre>';
-				//print_r($errors);
-				//echo '<br><br> insertInvSqlStatement error : '.($errors[2]);
+				echo '<br><br>insertInvSqlStatement errors<pre>';
+				print_r($errors);
+				echo '<br><br> insertInvSqlStatement error : '.($errors[2]);
 			}
-			
+			*/
 			//echo "<br>lastInsertId : ".
             $lastInsertId = $myMySQLPDOCon->lastInsertId();      
         }

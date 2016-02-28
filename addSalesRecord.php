@@ -207,7 +207,7 @@ $sale_id = getProperSaleId();
             <label class="control-label" for="sale_date">Sale Date</label>
           
               <!--<input type="text" class="form-control input-md" id="purchase_date" name="purchase_date" placeholder="Purchase Date">-->
-			  
+			<?php if(!empty($id_value)){?>    
 			<input type="text" class="form-control input-md" id="sale_date" name="sale_date" placeholder="Sale Date" data-date-format="yyyy-mm-dd" data-date-autoclose=true value="<?php if(isset($sale_date)){echo $sale_date;}?>" >
 
   					<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
@@ -218,7 +218,9 @@ $sale_id = getProperSaleId();
 							$( "#sale_date" ).datepicker();
 						});
 					</script>
-				
+			<?php }else{?>  	
+			<input type="text" class="form-control input-md" id="sale_date" name="sale_date" placeholder="Sale Date" data-date-format="yyyy-mm-dd" data-date-autoclose=true value="<?php echo date('m/d/Y');?>" readonly="true">
+			<?php }?> 				
             </div>
           </div>			  	  
 		                 

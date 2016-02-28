@@ -50,9 +50,9 @@ try {
     $purchase_date = (isset($_REQUEST['purchase_date'])) ? $_REQUEST['purchase_date'] : '';
     $purchase_date_value = date("Y-m-d", strtotime($purchase_date));
 
-	$supplier_id_value = $_POST['supplier_id'];
-    $purchase_id_value = $_POST['purchase_id'];
-    $sku_value = $_POST['sku'];
+	$supplier_id_value = strtoupper($_POST['supplier_id']);
+    $purchase_id_value = strtoupper($_POST['purchase_id']);
+    $sku_value = strtoupper($_POST['sku']);
     $title_value = $_POST['title'];
     $supplier_value = $_POST['supplier'];
     $cost_price_value = $_POST['cost_price'];
