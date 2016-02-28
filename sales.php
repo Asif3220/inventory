@@ -206,9 +206,8 @@ function getSaleSum($field){
 		  <br><img src="images/SimplyEezyLogo.png" ><br>
             <li><a href="dashboard.php">Overview <span class="sr-only">(current)</span></a></li>
 			<li><a href="inventory.php">Inventory</a></li>
+			<li><a href="stock.php">Stock</a></li> 				
 			<li class="active"><a href="sales.php">Sales Orders</a></li>
-        <!--    <li><a href="report.php">Reports</a></li> -->           
-            <!-- <li><a href="#">Export</a></li>-->
           </ul>
          <div style="position:fixed;bottom:0px;margin-right:right;margin-left:auto; font-style:italic"><footer>Design & developed by Creosoft Systems Team | Inventory Management - Version <strong>1.0</strong> </footer></div>
         </div>
@@ -219,15 +218,19 @@ function getSaleSum($field){
 			<div class="row">
 				<div style=" text-align:center;">
 				
-					<div class="col-xs-4">
+					<div class="col-xs-3">
 						<button type="button" class="btn btn-primary btn-lg" onClick='location.href="dashboard.php";'>Overview</button>
 					</div>	
 						
-					<div class="col-xs-4">
+					<div class="col-xs-3">
 						<button type="button" class="btn btn-primary btn-lg" onClick='location.href="inventory.php";'>Inventory</button>
 					</div>
 					
-					<div class="col-xs-4">
+					<div class="col-xs-3">
+						<button type="button" class="btn btn-primary btn-lg" onClick='location.href="stock.php";'>Stock</button>
+					</div>						
+					
+					<div class="col-xs-3">
 						<button type="button" class="btn btn-success btn-lg" onClick='location.href="sales.php";'>Sales Order</button>
 					</div>
 					

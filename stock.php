@@ -12,23 +12,17 @@ $qInv = (isset($_REQUEST['searchInventory']))?$_REQUEST['searchInventory']:'';
 $from_date = (isset($_REQUEST['from_date']))?urldecode($_REQUEST['from_date']):'';
 $to_date = (isset($_REQUEST['to_date']))?urldecode($_REQUEST['to_date']):'';
 
-$purchase_id = (isset($_REQUEST['purchase_id']))?$_REQUEST['purchase_id']:'';
 
 $selectInvSql = "";
 if(!empty($from_date) && !empty($to_date)){
 	$from_date_ymd = date("Y-m-d", strtotime($from_date));
 	$to_date_ymd = date("Y-m-d", strtotime($to_date));
-	$selectInvSql = "SELECT id, purchase_id, supplier_id, title, sku, cost_price, quantity, total_cost, purchase_date, supplier FROM inventory WHERE purchase_date BETWEEN '".$from_date_ymd."' AND '".$to_date_ymd."' LIMIT $start_from, $limit";
+	$selectInvSql = "SELECT id, sku, stock FROM master_inventory WHERE purchase_date BETWEEN '".$from_date_ymd."' AND '".$to_date_ymd."' LIMIT $start_from, $limit";
 }else if(!empty($qInv)){
-	//$selectInvSql = "SELECT id, purchase_id, supplier_id, title, sku, cost_price, quantity, total_cost, purchase_date, supplier FROM inventory WHERE title LIKE '%".$qInv."%' LIMIT $start_from, $limit";
 	//echo "<br>selectInvSql : ".
-	$selectInvSql = "SELECT id, purchase_id, supplier_id, title, sku, cost_price, quantity, total_cost, purchase_date, supplier FROM inventory WHERE (sku LIKE '%".trim($qInv)."%' OR supplier_id LIKE '%".trim($qInv)."%') LIMIT $start_from, $limit";
-
-
-}else if(!empty($purchase_id)){
-	$selectInvSql = "SELECT id, purchase_id, supplier_id, title, sku, cost_price, quantity, total_cost, purchase_date, supplier FROM inventory WHERE purchase_id LIKE '%".$purchase_id."%' LIMIT $start_from, $limit";
+	$selectInvSql = "SELECT id, sku, stock FROM master_inventory WHERE sku LIKE '%".trim($qInv)."%'  LIMIT $start_from, $limit";
 }else{
-	$selectInvSql = "SELECT id, purchase_id, supplier_id, title, sku, cost_price, quantity, total_cost, purchase_date, supplier FROM inventory LIMIT $start_from, $limit";
+	$selectInvSql = "SELECT id, sku, stock FROM master_inventory LIMIT $start_from, $limit";
 }
 
 if(!empty($selectInvSql)){
@@ -37,15 +31,6 @@ if(!empty($selectInvSql)){
 	$selectInvSqlStatement->execute($selectInvSqlParameter);
 	$inventoryRecords = array();
 	$inventoryRecords = $selectInvSqlStatement->fetchAll();
-	
-/*	if($selectInvSqlStatement->errorCode() > 0)
-	{
-		$errors = $selectInvSqlStatement->errorInfo();
-		echo '<br><br>selectInvSqlStatement errors<pre>';
-		print_r($errors);
-		echo '<br><br> selectInvSqlStatement error : '.($errors[2]);
-	}*/
-			
 }
 
 
@@ -53,18 +38,14 @@ function getStatForSearchedResult($inputVar, $qInv){
 	global $myMySQLPDOCon;
 	$qSalesSqlClause = "";
 	if(!empty($qInv)){
-		$qSalesSqlClause = "(sku LIKE '%".trim($qInv)."%' OR  supplier_id LIKE '%".trim($qInv)."%')";
+		$qSalesSqlClause = "sku LIKE '%".trim($qInv)."%'";
 	}
 	$selectSaleSearchedSql = "";
 	if(!empty($inputVar)){
-		if($inputVar == "totalQuantityPurchased"){
+		if($inputVar == "stock"){
 			//echo "<br>selectSaleSearchedSql : ".
-			$selectSaleSearchedSql = "SELECT SUM(quantity) AS result_total FROM inventory WHERE 1=1 AND ".$qSalesSqlClause;
-
-		}else if($inputVar == "totalSpend"){
-			//echo "<br>selectSaleSearchedSql : ".
-			$selectSaleSearchedSql = "SELECT SUM(total_cost) AS result_total FROM inventory WHERE 1=1 AND ".$qSalesSqlClause;
-		}	
+			$selectSaleSearchedSql = "SELECT SUM(stock) AS result_total FROM master_inventory WHERE 1=1 AND ".$qSalesSqlClause;
+		}
 		
 		if(!empty($selectSaleSearchedSql)){
 			$selectSaleSearchedSqlStatement = $myMySQLPDOCon->prepare($selectSaleSearchedSql);
@@ -79,15 +60,20 @@ function getStatForSearchedResult($inputVar, $qInv){
 	}
 }
 
-function getCount($field){
+function getProductName($sku_value){
 	global $myMySQLPDOCon;
-	$selectInvSql3 = "SELECT DISTINCT(`".$field."`) FROM inventory";
+	$selectInvSql3 = "SELECT `title` FROM inventory WHERE sku='".$sku_value."'";
+
+	
 	$selectInvSqlStatement3 = $myMySQLPDOCon->prepare($selectInvSql3);
 	$selectInvSqlParameter3 = array();
 	$selectInvSqlStatement3->execute($selectInvSqlParameter3);
 	$inventoryRecords3 = array();
 	$inventoryRecords3 = $selectInvSqlStatement3->fetchAll();
-	return count($inventoryRecords3);
+	if(count($inventoryRecords3)>0){
+	 return $inventoryRecords3[0]["title"];
+	}
+	return "";
 }
 
 	$total_records = 0;
@@ -147,19 +133,11 @@ function getCount($field){
 	}
 	
     function PrintDiv() {    
-		$('table tr').find('td:eq(1),th:eq(1)').hide();
-		$('table tr').find('td:eq(10),th:eq(10)').hide();
-		$("#bulk_delete_submit").hide();
-		
 		var divToPrint = document.getElementById('divToPrint').innerHTML;
 		var popupWin = window.open('', '_blank', 'width=1200,height=600');
 		popupWin.document.open();
 		popupWin.document.write('<html><body onload="window.print()">' + divToPrint + '</html>');
 		popupWin.document.close();
-		
-		$('table tr').find('td:eq(1),th:eq(1)').show();
-		$('table tr').find('td:eq(10),th:eq(10)').show();
-		$("#bulk_delete_submit").show();
     }
 	
 	function getStockBySKU(sku){
@@ -200,7 +178,7 @@ function getCount($field){
             <li><a href="logout.php">Log Out</a></li>
           </ul>
           <form class="navbar-form navbar-right">
-            <input type="text" id="searchInventory" name="searchInventory" class="form-control input-md" size="25" placeholder="Search By Supplier Id or SKU" value="<?php if(isset($qInv)){echo $qInv;}?>">
+            <input type="text" id="searchInventory" name="searchInventory" class="form-control input-md" size="15" placeholder="Search By SKU" value="<?php if(isset($qInv)){echo $qInv;}?>">
           </form>
         </div>
       </div>
@@ -212,14 +190,14 @@ function getCount($field){
           <ul class="nav nav-sidebar">
 		  <br><img src="images/SimplyEezyLogo.png" ><br>
             <li><a href="dashboard.php">Overview <span class="sr-only">(current)</span></a></li>
-			<li class="active"><a href="inventory.php">Inventory</a></li>
-			<li><a href="stock.php">Stock</a></li> 			
+			<li><a href="inventory.php">Inventory</a></li>
+			<li class="active"><a href="stock.php">Stock</a></li> 			
 			<li><a href="sales.php">Sales Orders</a></li>
           </ul>
          <div style="position:fixed;bottom:0px;margin-right:right;margin-left:auto; font-style:italic"><footer>Design & developed by Creosoft Systems Team | Inventory Management - Version <strong>1.0</strong> </footer></div>
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <h1 class="page-header">Inventory</h1>
+          <h1 class="page-header">Inventory Stock</h1>
 
 		<div class="well well-lg">
 			<div class="row">
@@ -230,12 +208,12 @@ function getCount($field){
 					</div>	
 						
 					<div class="col-xs-3">
-						<button type="button" class="btn btn-success btn-lg" onClick='location.href="inventory.php";'>Inventory</button>
+						<button type="button" class="btn btn-primary btn-lg" onClick='location.href="inventory.php";'>Inventory</button>
 					</div>
 					
 					<div class="col-xs-3">
-						<button type="button" class="btn btn-primary btn-lg" onClick='location.href="stock.php";'>Stock</button>
-					</div>					
+						<button type="button" class="btn btn-success btn-lg" onClick='location.href="stock.php";'>Stock</button>
+					</div>						
 					
 					<div class="col-xs-3">
 						<button type="button" class="btn btn-primary btn-lg" onClick='location.href="sales.php";'>Sales Order</button>
@@ -273,7 +251,7 @@ function getCount($field){
           
 			<div class="row">
 				<div class="col-sm-12">
-				<h2 class="sub-header">Inventory Records</h2>
+				<h2 class="sub-header">Inventory Stock Records</h2>
 				</div>	
 			</div>	
 			<div class="row">	
@@ -281,31 +259,7 @@ function getCount($field){
 				
 					<form class="navbar-form navbar-right" name="dateRangeForm" id="dateRangeForm">
 					<button onClick="PrintDiv();" type="button" class="btn btn-success btn-large">Print</button>
-						<button onClick="location.href='exportInventory.php?sql=<?php echo base64_encode($selectInvSql);?>';" type="button" class="btn btn-info btn-large">Export</button>
-						<button onClick="location.href='addInventoryRecord.php';" type="button" class="btn btn-primary btn-large">Add Inventory</button>
-						<select name="purchase_id" id="purchase_id" class="form-control" onChange="findPurchaseByID(this.value);">
-						<option value="">Search By Purchase Id</option>
-						<?php
-							$selectInvSql2 = "SELECT DISTINCT(purchase_id) AS purchase_id FROM inventory";
-							
-							$selectInvSqlStatement2 = $myMySQLPDOCon->prepare($selectInvSql2);
-							$selectInvSqlParameter2 = array();
-							$selectInvSqlStatement2->execute($selectInvSqlParameter2);
-							$inventoryRecords2 = array();
-							$inventoryRecords2 = $selectInvSqlStatement2->fetchAll();
-							if(count($inventoryRecords2)>0){
-								foreach($inventoryRecords2 as $invpur){
-								?>
-								<option value="<?php echo $invpur["purchase_id"]; ?>" <?php if(isset($_REQUEST['purchase_id']) && ($invpur["purchase_id"] == $_REQUEST['purchase_id'])){echo "selected";} ?> > <?php echo $invpur["purchase_id"]; ?></option>
-								<?php
-								}
-							}
-						?>
-						</select>
-						<input type="text" name="from_date" id="from_date"  class="form-control" placeholder="From" value="<?php if(isset($_REQUEST['from_date'])){echo $_REQUEST['from_date'];}?>" >
-						<input type="text" name="to_date" id="to_date"  class="form-control" placeholder="To" value="<?php if(isset($_REQUEST['to_date'])){echo $_REQUEST['to_date'];}?>" >
-						<button type="submit" class="btn btn-success btn-large">Find</button>
-						<button id="resetButton" type="reset" class="btn btn-danger btn-large">Cancel</button>
+						<button onClick="location.href='exportStock.php?sql=<?php echo base64_encode($selectInvSql);?>';" type="button" class="btn btn-info btn-large">Export</button>
 					</form>
 					<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
 					<script src="//code.jquery.com/jquery-1.10.2.js"></script>
@@ -329,33 +283,10 @@ function getCount($field){
 				<div class="col-sm-12">
 				<form class="navbar-form navbar-center" name="dateRangeForm" id="dateRangeForm">
 				<div class="well well-lg">
-				<?php if(empty($qInv)){?>
-				Total Unique Purchase ID : <strong><?php echo getCount("purchase_id"); ?></strong> | Total SKU Count : <strong><?php echo getCount("sku"); ?></strong>&nbsp;&nbsp;
-				
-				<!--<select name="sku" id="sku" class="form-control" onChange="getStockBySKU(this.value);">
-						<option value="">Get Current Stock By SKU</option>
-						<?php
-							/*$selectInvSql21 = "SELECT sku FROM master_inventory";
-							
-							$selectInvSqlStatement21 = $myMySQLPDOCon->prepare($selectInvSql21);
-							$selectInvSqlParameter21 = array();
-							$selectInvSqlStatement21->execute($selectInvSqlParameter21);
-							$inventoryRecords21 = array();
-							$inventoryRecords21 = $selectInvSqlStatement21->fetchAll();
-							if(count($inventoryRecords21)>0){
-								foreach($inventoryRecords21 as $invpur21){*/
-								?>
-								<option value="<?php // echo $invpur21["sku"]; ?>" <?php // if(isset($_REQUEST['sku']) && ($invpur21["sku"] == $_REQUEST['sku'])){echo "selected";} ?> > <?php // echo strtoupper($invpur21["sku"]); ?></option>
-								<?php
-								//}
-							//}
-						?>
-				</select>
-				&nbsp;&nbsp;<b><span id="stock_display"></b></span>&nbsp;&nbsp; -->
-				
-				<?php }else{?>
-					Total Product Purchased : <?php echo getStatForSearchedResult("totalQuantityPurchased", $qInv); ?> | Total Cost : <?php echo getStatForSearchedResult("totalSpend", $qInv); ?>
-				<?php }?>
+				<?php // if(empty($qInv)){?>
+				Total Current Stock : <strong><?php echo getStatForSearchedResult("stock", $qInv); ?></strong>&nbsp;&nbsp;
+				<?php // }else{?>
+				<?php //}?>
 				</div>
 				</form>
 				</div>	
@@ -363,22 +294,13 @@ function getCount($field){
 			<br><br>
           <div class="table-responsive">
 		  <div id="divToPrint" style="display:block;">
-		  <form name="bulk_action_form" id="bulk_action_form" action="groupInventoryDelete.php" method="post" onSubmit="return deleteConfirm();"/>
             <table class="table table-striped" id="myTable">
               <thead>
                 <tr>
                   <th>#</th>
-				  <th id="checkBoxColumnHeader"><input type="checkbox" name="select_all" id="select_all" value=""/></th>   
-				  <!--<th>Purchase ID</th>-->
-                  <th>Product Title</th>
+                  <!--<th>Product Title</th>-->
                   <th>SKU</th>
-                  <th>Cost</th>
-                  <th>Quantity</th>
-				  <th>Total Cost</th>
-			      <th>Purchase Date</th>
-				  <th>Supplier ID</th>
-				  <th>Supplier</th>
-				  <th>Action</th>
+                  <th>Current Stock</th>
                 </tr>
               </thead>
 			  <tbody>
@@ -390,17 +312,9 @@ function getCount($field){
 				
 					<tr>
 					  <td><?php echo $indx;?></td>
-					  <td id="checkBoxColumnData" align="center"><input type="checkbox" name="checked_id[]" class="checkbox" value="<?php echo $invRow['id']; ?>"/></td>       
-					 <!-- <td><?php //echo $invRow["purchase_id"];?></td>-->
-					  <td><?php echo $invRow["title"];?></td>
+					 <!-- <td><?php //echo getProductName($invRow["sku"]);?></td>-->
 					  <td><?php echo strtoupper($invRow["sku"]);?></td>
-					  <td><?php echo $invRow["cost_price"];?></td>
-					  <td><?php echo $invRow["quantity"];?></td>
-					  <td><?php echo $invRow["total_cost"];?></td>
-					  <td><?php echo $invRow["purchase_date"];?></td>
-					  <td><?php echo strtoupper($invRow["supplier_id"]);?></td>
-					  <td><?php echo $invRow["supplier"];?></td>
-					  <td><a href="addInventoryRecord.php?id=<?php echo $invRow["id"];?>">Edit</a>&nbsp;|&nbsp;<a onClick="javascript:confirmDelete('<?php echo $invRow["id"];?>');" href="javascript:void(0)">Delete</a></td>  
+					  <td><?php echo $invRow["stock"];?></td>
 					</tr>                
 				<?php
 				$indx++;
@@ -417,10 +331,6 @@ function getCount($field){
              
 			</tbody>
             </table>
-			
-			<?php if($total_records>1){?>
-				<input type="submit" class="btn btn-danger" name="bulk_delete_submit" id="bulk_delete_submit" value="Delete"/>
-			<?php } ?>
 			
 			</form>
 			<br><br>
