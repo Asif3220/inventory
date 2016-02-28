@@ -37,15 +37,17 @@ if(!empty($selectInvSql)){
 function getStatForSearchedResult($inputVar, $qInv){
 	global $myMySQLPDOCon;
 	$qSalesSqlClause = "";
+	$selectSaleSearchedSql = "";
 	if(!empty($qInv)){
 		$qSalesSqlClause = "sku LIKE '%".trim($qInv)."%'";
-	}
-	$selectSaleSearchedSql = "";
-	if(!empty($inputVar)){
-		if($inputVar == "stock"){
 			//echo "<br>selectSaleSearchedSql : ".
 			$selectSaleSearchedSql = "SELECT SUM(stock) AS result_total FROM master_inventory WHERE 1=1 AND ".$qSalesSqlClause;
-		}
+		}else{
+			$selectSaleSearchedSql = "SELECT SUM(stock) AS result_total FROM master_inventory";
+		}	
+	
+	if(!empty($selectSaleSearchedSql)){
+
 		
 		if(!empty($selectSaleSearchedSql)){
 			$selectSaleSearchedSqlStatement = $myMySQLPDOCon->prepare($selectSaleSearchedSql);
